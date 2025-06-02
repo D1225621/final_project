@@ -232,10 +232,10 @@
   async function insertData() {
     const metalType = document.getElementById('metalType').value;
     const year = document.getElementById('insertYear').value;
-    const averagePrice = document.getElementById('averagePrice').value;
-    const highestPrice = document.getElementById('highestPrice').value;
-    const lowestPrice = document.getElementById('lowestPrice').value;
-    const annualRange = document.getElementById('annualRange').value;
+    const averagePrice = parseFloat(document.getElementById('averagePrice').value).toFixed(2);
+    const highestPrice = parseFloat(document.getElementById('highestPrice').value).toFixed(2);
+    const lowestPrice = parseFloat(document.getElementById('lowestPrice').value).toFixed(2);
+    const annualRange = parseFloat(document.getElementById('annualRange').value).toFixed(2);
 
     if (!year || !averagePrice || !highestPrice || !lowestPrice || !annualRange) {
       alert('請填寫所有欄位');
@@ -246,7 +246,13 @@
       const response = await fetch(`/api/insert/${metalType}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ year, average_price: averagePrice, highest_price: highestPrice, lowest_price: lowestPrice, annual_range: annualRange })
+        body: JSON.stringify({
+          year,
+          average_price: averagePrice,
+          highest_price: highestPrice,
+          lowest_price: lowestPrice,
+          annual_range: annualRange
+        })
       });
       const result = await response.text();
       alert(result);
@@ -278,10 +284,10 @@
       } else {
         const row = `<tr>
                         <td>${data.year}</td>
-                        <td>${data.average_price}</td>
-                        <td>${data.highest_price}</td>
-                        <td>${data.lowest_price}</td>
-                        <td>${data.annual_range}</td>
+                        <td>${parseFloat(data.average_price).toFixed(2)}</td>
+                        <td>${parseFloat(data.highest_price).toFixed(2)}</td>
+                        <td>${parseFloat(data.lowest_price).toFixed(2)}</td>
+                        <td>${parseFloat(data.annual_range).toFixed(2)}</td>
                     </tr>`;
         tbody.innerHTML = row;
         singleTable.classList.add('show');
@@ -327,10 +333,10 @@
         data.forEach(item => {
           const row = `<tr>
                             <td>${item.year}</td>
-                            <td>${item.average_price}</td>
-                            <td>${item.highest_price}</td>
-                            <td>${item.lowest_price}</td>
-                            <td>${item.annual_range}</td>
+                            <td>${parseFloat(item.average_price).toFixed(2)}</td>
+                            <td>${parseFloat(item.highest_price).toFixed(2)}</td>
+                            <td>${parseFloat(item.lowest_price).toFixed(2)}</td>
+                            <td>${parseFloat(item.annual_range).toFixed(2)}</td>
                         </tr>`;
           tbody.innerHTML += row;
         });
@@ -357,10 +363,10 @@
         data.forEach(item => {
           const row = `<tr>
                             <td>${item.year}</td>
-                            <td>${item.average_price}</td>
-                            <td>${item.highest_price}</td>
-                            <td>${item.lowest_price}</td>
-                            <td>${item.annual_range}</td>
+                            <td>${parseFloat(item.average_price).toFixed(2)}</td>
+                            <td>${parseFloat(item.highest_price).toFixed(2)}</td>
+                            <td>${parseFloat(item.lowest_price).toFixed(2)}</td>
+                            <td>${parseFloat(item.annual_range).toFixed(2)}</td>
                         </tr>`;
           tbody.innerHTML += row;
         });
@@ -389,10 +395,10 @@
     }
 
     const labels = data.map(item => item.year);
-    const averagePrices = data.map(item => item.average_price);
-    const highestPrices = data.map(item => item.highest_price);
-    const lowestPrices = data.map(item => item.lowest_price);
-    const annualRanges = data.map(item => item.annual_range);
+    const averagePrices = data.map(item => parseFloat(item.average_price).toFixed(2));
+    const highestPrices = data.map(item => parseFloat(item.highest_price).toFixed(2));
+    const lowestPrices = data.map(item => parseFloat(item.lowest_price).toFixed(2));
+    const annualRanges = data.map(item => parseFloat(item.annual_range).toFixed(2));
 
     console.log('Chart data:', { labels, averagePrices, highestPrices, lowestPrices, annualRanges });
 
@@ -452,7 +458,12 @@
                 display: true,
                 text: '價格 (USD/ounce)'
               },
-              beginAtZero: false
+              beginAtZero: false,
+              ticks: {
+                callback: function(value) {
+                  return parseFloat(value).toFixed(2); // 格式化 Y 軸價格標籤
+                }
+              }
             },
             y1: {
               title: {
@@ -463,6 +474,11 @@
               beginAtZero: false,
               grid: {
                 drawOnChartArea: false
+              },
+              ticks: {
+                callback: function(value) {
+                  return parseFloat(value).toFixed(2); // 格式化 Y1 軸年幅度標籤
+                }
               }
             }
           },
@@ -473,6 +489,18 @@
             },
             legend: {
               position: 'top'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  let label = context.dataset.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  label += parseFloat(context.parsed.y).toFixed(2); // 格式化工具提示中的數值
+                  return label;
+                }
+              }
             }
           }
         }
@@ -486,6 +514,5 @@
   fetchAllData();
   document.getElementById('metalType').addEventListener('change', fetchAllData);
 </script>
-</div>
 </body>
 </html>
