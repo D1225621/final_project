@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>金價資訊</title>
+  <title>鉑金價格</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -59,8 +59,8 @@
 </head>
 <body>
 <div class="header">
-  <img src="/public/images/logo.png" alt="Logo" style="height: 40px;">
-  <div>黃金價格</div>
+  <img src="logo.png" alt="Logo" style="height: 40px;">
+  <div>鉑金價格</div>
 </div>
 <div class="nav">
   <a href="index.html">金價</a>
@@ -70,29 +70,29 @@
 </div>
 <div class="container">
   <div class="price-box">
-    <p>國際金價每盎司</p>
-    <p class="price" id="goldPriceInt">$3362.86</p>
-    <p class="change" id="goldChangeInt">-18.63 -0.551%</p>
-    <button class="button" onclick="refreshGoldPrice('Int')">刷新價格</button>
+    <p>國際鉑金每盎司</p>
+    <p class="price" id="platinumPriceInt">$1060.84</p>
+    <p class="change" id="platinumChangeInt">-2.36 -0.222%</p>
+    <button class="button" onclick="refreshPlatinumPrice('Int')">刷新價格</button>
   </div>
   <div class="price-box">
     <p>港幣每盎司</p>
-    <p class="price" id="goldPriceHKD">$3386.37</p>
-    <p class="change" id="goldChangeHKD">-10.83 -0.319%</p>
-    <button class="button" onclick="refreshGoldPrice('HKD')">刷新價格</button>
+    <p class="price" id="platinumPriceHKD">$1065.00</p>
+    <p class="change" id="platinumChangeHKD">-1.90 -0.178%</p>
+    <button class="button" onclick="refreshPlatinumPrice('HKD')">刷新價格</button>
   </div>
 </div>
 <script>
-  function refreshGoldPrice(type) {
-    const minPrice = 3000;
-    const maxPrice = 4000;
-    const oldPrice = parseFloat(document.getElementById(`goldPrice${type}`).textContent.replace('$', ''));
+  function refreshPlatinumPrice(type) {
+    const minPrice = 900;
+    const maxPrice = 1100;
+    const oldPrice = parseFloat(document.getElementById(`platinumPrice${type}`).textContent.replace('$', ''));
     const newPrice = (Math.random() * (maxPrice - minPrice) + minPrice).toFixed(2);
     const change = (newPrice - oldPrice).toFixed(2);
     const percentage = ((change / oldPrice) * 100).toFixed(3);
 
-    document.getElementById(`goldPrice${type}`).textContent = `$${newPrice}`;
-    document.getElementById(`goldChange${type}`).textContent = `${change} ${percentage}%`;
+    document.getElementById(`platinumPrice${type}`).textContent = `$${newPrice}`;
+    document.getElementById(`platinumChange${type}`).textContent = `${change} ${percentage}%`;
   }
 </script>
 </body>

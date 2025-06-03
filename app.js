@@ -174,8 +174,8 @@ app.get('/api/silver', (req, res) => {
     });
 });
 
-// /api/insert/sliver 路由：新增一筆 silver_price 資料
-app.get('/api/insert/sliver', (req, res) => {
+// /api/insert/silver 路由：新增一筆 silver_price 資料
+app.get('/api/insert/silver', (req, res) => {
     const { year, average_price, highest_price, lowest_price, annual_range } = req.query;
     if (!year || !average_price || !highest_price || !lowest_price || !annual_range) {
         return res.status(400).json({ error: '請提供 year, average_price, highest_price, lowest_price, annual_range 參數' });
@@ -191,8 +191,8 @@ app.get('/api/insert/sliver', (req, res) => {
     });
 });
 
-// /api/sliver/range 路由：查詢指定年份範圍的 silver_price 資料
-app.get('/api/sliver/range', (req, res) => {
+// /api/silver/range 路由：查詢指定年份範圍的 silver_price 資料
+app.get('/api/silver/range', (req, res) => {
     const startYear = parseInt(req.query.startYear, 10);
     const endYear = parseInt(req.query.endYear, 10);
     if (isNaN(startYear) || isNaN(endYear)) {

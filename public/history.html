@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>歷史價格</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .header {
+      background-color: #5c4033;
+      color: white;
+      text-align: center;
+      padding: 10px 0;
+    }
+    .nav {
+      background-color: #4a3628;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+    .nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    .container {
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .section {
+      background-color: white;
+      padding: 20px;
+      border: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #4a3628;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    .button {
+      background-color: #4a3628;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #4a3628;
+      color: white;
+    }
+    canvas {
+      margin-top: 20px;
+      max-width: 100%;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+  <img src="logo.png" alt="Logo" style="height: 40px;">
+  <div>歷史價格</div>
+</div>
+<div class="nav">
+  <a href="index.html">金價</a>
+  <a href="silver.html">白銀</a>
+  <a href="platinum.html">鉑金</a>
+  <a href="history.html">歷史價格</a>
+</div>
+<div class="container">
+  <div class="section">
+    <div class="form-group">
+      <label>選擇金屬類型：</label>
+      <select id="metalType">
+        <option value="gold">黃金</option>
+        <option value="silver">白銀</option>
+        <option value="platinum">鉑金</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>新增金屬價格資料</h2>
+    <div class="form-group">
+      <label>年份(year):</label>
+      <input type="number" id="yearInput" placeholder="請輸入年份">
+    </div>
+    <div class="form-group">
+      <label>平均價(average_price, USD/ounce):</label>
+      <input type="number" step="0.01" id="avgPriceInput" placeholder="請輸入平均價">
+      <small>（單位：美元/盎司）</small>
+    </div>
+    <div class="form-group">
+      <label>最高點(highest_price, USD/ounce):</label>
+      <input type="number" step="0.01" id="highPriceInput" placeholder="請輸入最高點">
+      <small>（單位：美元/盎司）</small>
+    </div>
+    <div class="form-group">
+      <label>最低點(lowest_price, USD/ounce):</label>
+      <input type="number" step="0.01" id="lowPriceInput" placeholder="請輸入最低點">
+      <small>（單位：美元/盎司）</small>
+    </div>
+    <div class="form-group">
+      <label>年幅度(annual_range, %):</label>
+      <input type="number" step="0.01" id="rangeInput" placeholder="請輸入年幅度">
+      <small>（單位：百分比）</small>
+    </div>
+    <button class="button" onclick="addPriceData()">送出</button>
+  </div>
+
+  <div class="section">
+    <h2>查詢金屬價格資料</h2>
+    <div class="form-group">
+      <label>年份(year):</label>
+      <input type="number" id="queryYearInput" placeholder="請輸入年份">
+    </div>
+    <button class="button" onclick="queryPriceData()">查詢</button>
+    <table id="queryTable" class="hidden">
+      <thead>
+      <tr>
+        <th>年份(year)</th>
+        <th>平均價(average_price, USD/ounce)</th>
+        <th>最高點(highest_price, USD/ounce)</th>
+        <th>最低點(lowest_price, USD/ounce)</th>
+        <th>年幅度(annual_range, %)</th>
+      </tr>
+      </thead>
+      <tbody id="queryTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>查詢金屬價格年份範圍資料</h2>
+    <div class="form-group">
+      <label>開始年份(startYear):</label>
+      <input type="number" id="startYearInput" placeholder="請輸入開始年份">
+    </div>
+    <div class="form-group">
+      <label>結束年份(endYear):</label>
+      <input type="number" id="endYearInput" placeholder="請輸入結束年份">
+    </div>
+    <button class="button" onclick="queryPriceRangeData()">查詢</button>
+    <canvas id="priceTrendChart" width="400" height="200" class="hidden"></canvas>
+    <table id="rangeQueryTable" class="hidden">
+      <thead>
+      <tr>
+        <th>年份(year)</th>
+        <th>平均價(average_price, USD/ounce)</th>
+        <th>最高點(highest_price, USD/ounce)</th>
+        <th>最低點(lowest_price, USD/ounce)</th>
+        <th>年幅度(annual_range, %)</th>
+      </tr>
+      </thead>
+      <tbody id="rangeQueryTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>所有金屬價格資料</h2>
+    <table id="allPriceTable">
+      <thead>
+      <tr>
+        <th>年份(year)</th>
+        <th>平均價(average_price, USD/ounce)</th>
+        <th>最高點(highest_price, USD/ounce)</th>
+        <th>最低點(lowest_price, USD/ounce)</th>
+        <th>年幅度(annual_range, %)</th>
+      </tr>
+      </thead>
+      <tbody id="allPriceTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  let priceData = [];
+  let priceChart = null;
+
+  async function addPriceData() {
+    const metalType = document.getElementById('metalType').value;
+    const year = document.getElementById('yearInput').value;
+    const avgPrice = parseFloat(document.getElementById('avgPriceInput').value);
+    const highPrice = parseFloat(document.getElementById('highPriceInput').value);
+    const lowPrice = parseFloat(document.getElementById('lowPriceInput').value);
+    const annualRange = parseFloat(document.getElementById('rangeInput').value);
+
+    if (!year || isNaN(avgPrice) || isNaN(highPrice) || isNaN(lowPrice) || isNaN(annualRange)) {
+      alert('請填寫所有欄位並確保數值正確！');
+      return;
+    }
+
+    const data = {
+      year: parseInt(year),
+      average_price: avgPrice,
+      highest_price: highPrice,
+      lowest_price: lowPrice,
+      annual_range: annualRange
+    };
+
+    try {
+      let url = '';
+      switch (metalType) {
+        case 'gold':
+          url = '/api/insert/gold';
+          break;
+        case 'silver':
+          url = '/api/insert/silver';
+          break;
+        case 'platinum':
+          url = '/api/insert/platinum';
+          break;
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.text();
+      alert(result); // 顯示 '資料新增成功' 或其他後端回傳訊息
+      clearAddForm();
+      updateAllPriceTable(); // 更新所有資料表格
+    } catch (error) {
+      console.error('插入資料失敗:', error);
+      alert('插入資料失敗，請檢查後端服務或網絡連接！');
+    }
+  }
+
+  function clearAddForm() {
+    document.getElementById('yearInput').value = '';
+    document.getElementById('avgPriceInput').value = '';
+    document.getElementById('highPriceInput').value = '';
+    document.getElementById('lowPriceInput').value = '';
+    document.getElementById('rangeInput').value = '';
+  }
+
+  async function queryPriceData() {
+    const metalType = document.getElementById('metalType').value;
+    const year = parseInt(document.getElementById('queryYearInput').value);
+    if (!year) {
+      alert('請輸入查詢年份！');
+      return;
+    }
+
+    try {
+      let url = '';
+      switch (metalType) {
+        case 'gold':
+          url = `/api/gold?year=${year}`;
+          break;
+        case 'silver':
+          url = `/api/silver?year=${year}`;
+          break;
+        case 'platinum':
+          url = `/api/platinum?year=${year}`;
+          break;
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const table = document.getElementById('queryTable');
+      const tbody = document.getElementById('queryTableBody');
+      tbody.innerHTML = '';
+
+      if (data.error) {
+        table.classList.add('hidden');
+      } else {
+        table.classList.remove('hidden');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+                        <td>${data.year}</td>
+                        <td>$${data.average_price}</td>
+                        <td>$${data.highest_price}</td>
+                        <td>$${data.lowest_price}</td>
+                        <td>${data.annual_range}%</td>
+                    `;
+        tbody.appendChild(row);
+      }
+    } catch (error) {
+      console.error('查詢資料失敗:', error);
+      alert('查詢資料失敗，請檢查後端服務或網絡連接！');
+    }
+  }
+
+  async function queryPriceRangeData() {
+    const metalType = document.getElementById('metalType').value;
+    const startYear = parseInt(document.getElementById('startYearInput').value);
+    const endYear = parseInt(document.getElementById('endYearInput').value);
+
+    if (!startYear || !endYear || startYear > endYear) {
+      alert('請輸入有效年份範圍！');
+      return;
+    }
+
+    try {
+      let url = '';
+      switch (metalType) {
+        case 'gold':
+          url = `/api/gold/range?startYear=${startYear}&endYear=${endYear}`;
+          break;
+        case 'silver':
+          url = `/api/silver/range?startYear=${startYear}&endYear=${endYear}`;
+          break;
+        case 'platinum':
+          url = `/api/platinum/range?startYear=${startYear}&endYear=${endYear}`;
+          break;
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      let data = await response.json();
+      const table = document.getElementById('rangeQueryTable');
+      const tbody = document.getElementById('rangeQueryTableBody');
+      const canvas = document.getElementById('priceTrendChart');
+      tbody.innerHTML = '';
+
+      if (data.error || data.length === 0) {
+        table.classList.add('hidden');
+        canvas.classList.add('hidden');
+      } else {
+        table.classList.remove('hidden');
+        canvas.classList.remove('hidden');
+        // 對數據按年份升序排序
+        data.sort((a, b) => a.year - b.year);
+
+        // 更新表格（按查詢結果顯示，保持後端降序）
+        data.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+                            <td>${item.year}</td>
+                            <td>$${item.average_price}</td>
+                            <td>$${item.highest_price}</td>
+                            <td>$${item.lowest_price}</td>
+                            <td>${item.annual_range}%</td>
+                        `;
+          tbody.appendChild(row);
+        });
+
+        // 更新走勢圖（按升序年份繪製）
+        if (priceChart) {
+          priceChart.destroy();
+        }
+        const ctx = canvas.getContext('2d');
+        priceChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.map(item => item.year),
+            datasets: [{
+              label: '平均價格 (USD/ounce)',
+              data: data.map(item => parseFloat(item.average_price)),
+              borderColor: '#e63946',
+              backgroundColor: 'rgba(230, 57, 70, 0.2)',
+              fill: true,
+              tension: 0.1
+            }]
+          },
+          options: {
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: '年份'
+                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: '平均價格 (USD/ounce)'
+                },
+                beginAtZero: false
+              }
+            }
+          }
+        });
+      }
+    } catch (error) {
+      console.error('查詢範圍資料失敗:', error);
+      alert('查詢範圍資料失敗，請檢查後端服務或網絡連接！');
+    }
+  }
+
+  async function updateAllPriceTable() {
+    const metalType = document.getElementById('metalType').value;
+
+    try {
+      let url = '';
+      switch (metalType) {
+        case 'gold':
+          url = '/api/gold/price';
+          break;
+        case 'silver':
+          url = '/api/silver/price';
+          break;
+        case 'platinum':
+          url = '/api/platinum/price';
+          break;
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const tbody = document.getElementById('allPriceTableBody');
+      tbody.innerHTML = '';
+
+      data.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+                        <td>${item.year}</td>
+                        <td>$${item.average_price}</td>
+                        <td>$${item.highest_price}</td>
+                        <td>$${item.lowest_price}</td>
+                        <td>${item.annual_range}%</td>
+                    `;
+        tbody.appendChild(row);
+      });
+    } catch (error) {
+      console.error('更新所有資料表格失敗:', error);
+      alert('更新所有資料失敗，請檢查後端服務或網絡連接！');
+    }
+  }
+
+  document.getElementById('metalType').addEventListener('change', updateAllPriceTable);
+  window.addEventListener('load', updateAllPriceTable); // 頁面加載時自動更新
+</script>
+</body>
+</html>
