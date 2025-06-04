@@ -41,12 +41,26 @@
         .submessage {
             color: #5c4033;
             font-size: 16px;
+            margin-bottom: 20px;
         }
         .blink {
             animation: blink 1.5s infinite;
         }
         @keyframes blink {
             50% { opacity: 0; }
+        }
+        .recover-button {
+            background-color: #4a3628;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .recover-button:hover {
+            background-color: #5c4033;
         }
     </style>
 </head>
@@ -55,6 +69,35 @@
     <div class="spinner"></div>
     <div class="message">系統當機中，請稍候 <span class="blink">...</span></div>
     <div class="submessage">我們正在努力恢復服務，預計很快恢復正常。</div>
+    <button class="recover-button" onclick="tryRecover()">嘗試恢復</button>
 </div>
+
+<script>
+    async function tryRecover() {
+        const recoverButton = document.querySelector('.recover-button');
+        recoverButton.disabled = true;
+        recoverButton.textContent = '正在嘗試恢復...';
+
+        try {
+            // 假設檢查後端服務是否可用，通過請求一個簡單的 API
+            const response = await fetch('/api/healthcheck', {
+                method: 'GET',
+                timeout: 5000 // 設置 5 秒超時
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // 如果後端響應成功，跳轉回 index.html
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error('恢復失敗:', error);
+            alert('無法連接到服務器，請稍後再試！');
+            recoverButton.disabled = false;
+            recoverButton.textContent = '嘗試恢復';
+        }
+    }
+</script>
 </body>
 </html>

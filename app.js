@@ -23,6 +23,87 @@ db.serialize(() => {
     });
 });
 
+// 需先安裝 puppeteer：npm install puppeteer
+const puppeteer = require('puppeteer');
+app.get('/api/gold/price/get', async (req, res) => {
+    try {
+        const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+        const page = await browser.newPage();
+        await page.goto('https://www.jinjia.vip/', { waitUntil: 'networkidle2' });
+
+        // 等待倫敦金價格區塊載入
+        await page.waitForSelector('#tbl_hf_XAU');
+        // 等待價格內容不是 loading
+        await page.waitForFunction(() => {
+            const el = document.querySelector('#tbl_hf_XAU');
+            return el && !el.innerText.includes('即時英國倫敦金價');
+        }, { timeout: 10000 });
+
+        // 取得價格（根據實際 DOM 結構調整）
+        const price = await page.$eval('#tbl_hf_XAU', el => {
+            // 這裡假設價格直接在這個區塊內
+            return el.innerText.match(/[\d,]+\.\d+/) ? el.innerText.match(/[\d,]+\.\d+/)[0] : '';
+        });
+
+        await browser.close();
+        res.json({ price });
+    } catch (error) {
+        res.status(500).json({ error: '爬取金價失敗', detail: error.message });
+    }
+});
+
+app.get('/api/silver/price/get', async (req, res) => {
+    try {
+        const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+        const page = await browser.newPage();
+        await page.goto('https://www.jinjia.vip/Silver/', { waitUntil: 'networkidle2' });
+
+        // 等待價格區塊載入（根據實際 class/id 調整）
+        await page.waitForSelector('#tbl_hf_XAG');
+        await page.waitForFunction(() => {
+            const el = document.querySelector('#tbl_hf_XAG');
+            return el && !el.innerText.includes('即時英國倫敦白銀價');
+        }, { timeout: 10000 });
+
+        // 抓取價格
+        const price = await page.$eval('#tbl_hf_XAG', el => {
+            const match = el.innerText.match(/[\d,]+\.\d+/);
+            return match ? match[0] : '';
+        });
+
+        await browser.close();
+        res.json({ price });
+    } catch (error) {
+        res.status(500).json({ error: '爬取白銀價失敗', detail: error.message });
+    }
+});
+
+app.get('/api/platinum/price/get', async (req, res) => {
+    try {
+        const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+        const page = await browser.newPage();
+        await page.goto('https://www.jinjia.vip/Platinum/', { waitUntil: 'networkidle2' });
+
+        // 等待價格區塊載入（根據實際 id 調整）
+        await page.waitForSelector('#tbl_hf_XPT');
+        await page.waitForFunction(() => {
+            const el = document.querySelector('#tbl_hf_XPT');
+            return el && !el.innerText.includes('即時英國倫敦鉑金價');
+        }, { timeout: 10000 });
+
+        // 抓取價格
+        const price = await page.$eval('#tbl_hf_XPT', el => {
+            const match = el.innerText.match(/[\d,]+\.\d+/);
+            return match ? match[0] : '';
+        });
+
+        await browser.close();
+        res.json({ price });
+    } catch (error) {
+        res.status(500).json({ error: '爬取鉑金價失敗', detail: error.message });
+    }
+});
+
 const cors = require('cors');
 // 啟用 CORS，允許特定來源
 app.use(cors({
@@ -281,6 +362,10 @@ app.get('/api/insert/platinum', (req, res) => {
         console.log('新增 platinum_price 資料成功，ID:', this.lastID);
         res.json({ success: true, id: this.lastID });
     });
+});
+
+app.get('/api/healthcheck', (req, res) => {
+  res.status(200).json({ status: 'ok' });
 });
 
 module.exports = app;

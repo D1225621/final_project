@@ -15,8 +15,15 @@
     .header {
       background-color: #5c4033;
       color: white;
-      text-align: center;
+      text-align: left;
       padding: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    .header img {
+      margin-left: 20px;
+      margin-right: 15px;
     }
     .nav {
       background-color: #4a3628;
@@ -63,6 +70,9 @@
       border: none;
       cursor: pointer;
       margin-top: 10px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
     table {
       width: 100%;
@@ -89,11 +99,11 @@
 </head>
 <body>
 <div class="header">
-  <img src="logo.png" alt="Logo" style="height: 40px;">
+  <img src="/images/logo.png" alt="Logo" style="height: 40px;">
   <div>歷史價格</div>
 </div>
 <div class="nav">
-  <a href="index.html">金價</a>
+  <a href="index.html">黃金</a>
   <a href="silver.html">白銀</a>
   <a href="platinum.html">鉑金</a>
   <a href="history.html">歷史價格</a>
