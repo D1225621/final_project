@@ -52,6 +52,18 @@
         color: #333;
         margin-bottom: 10px;
     }
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .platinum-icon {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      margin: 0 8px;
+    }
     .unit{
       font-size: 14px;
       color: #666;
@@ -86,7 +98,11 @@
 </div>
 <div class="container">
   <div class="price-box">
-    <p class="title">現在國際鉑金價格</p>
+    <div class="title-row">
+      <img src="/images/platinum.webp" alt="platinum" class="platinum-icon">
+      <span class="title">現在國際鉑金價格</span>
+      <img src="/images/platinum.webp" alt="platinum" class="platinum-icon">
+    </div>
     <p class="unit">單位：美元/盎司</p>
     <p class="price" id="platinumPriceInt">$1060.84</p>
     <p class="change" id="platinumChangeInt">-2.36 -0.222%</p>
@@ -97,7 +113,7 @@
   let lastRefreshTime = 0;
   async function refreshPlatinumPrice(type) {
     const now = Date.now();
-    if (now - lastRefreshTime < 1000) {
+    if (now - lastRefreshTime < 500) {
       window.location.href = 'error-wait.html';
       return;
     }

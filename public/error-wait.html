@@ -20,18 +20,20 @@
             text-align: center;
             position: relative;
         }
-        .spinner {
-            width: 80px;
-            height: 80px;
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #4a3628;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .marquee-img-box {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
             margin-bottom: 20px;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .marquee-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            border-radius: 12px;
+            background: #f3f3f3;
+            border: 1px solid #f3f3f3;
+            transition: filter 0.3s;
         }
         .message {
             color: #4a3628;
@@ -66,33 +68,58 @@
 </head>
 <body>
 <div class="container">
-    <div class="spinner"></div>
+    <div class="marquee-img-box">
+        <img id="img1" class="marquee-img" src="" alt="圖片1">
+        <img id="img2" class="marquee-img" src="" alt="圖片2">
+        <img id="img3" class="marquee-img" src="" alt="圖片3">
+    </div>
     <div class="message">系統當機中，請稍候 <span class="blink">...</span></div>
     <div class="submessage">我們正在努力恢復服務，預計很快恢復正常。</div>
     <button class="recover-button" onclick="tryRecover()">嘗試恢復</button>
 </div>
 
 <script>
+    // 圖片路徑
+    const images = [
+        '/images/brick.webp',
+        '/images/copper.webp',
+        '/images/iron.webp',
+        '/images/gold.webp',
+        '/images/silver.png',
+        '/images/platinum.webp'
+    ];
+    // 初始索引
+    let startIdx = 0;
+
+    function updateMarqueeImages() {
+        for (let i = 0; i < 3; i++) {
+            const imgElem = document.getElementById('img' + (i + 1));
+            imgElem.src = images[(startIdx + i) % images.length];
+        }
+        startIdx = (startIdx + 1) % images.length;
+    }
+
+    // 初始顯示
+    updateMarqueeImages();
+    // 每秒輪播
+    setInterval(updateMarqueeImages, 1000);
+
     async function tryRecover() {
         const recoverButton = document.querySelector('.recover-button');
         recoverButton.disabled = true;
         recoverButton.textContent = '正在嘗試恢復...';
 
         try {
-            // 假設檢查後端服務是否可用，通過請求一個簡單的 API
             const response = await fetch('/api/healthcheck', {
-                method: 'GET',
-                timeout: 5000 // 設置 5 秒超時
+                method: 'GET'
             });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // 如果後端響應成功，跳轉回 index.html
             window.location.href = 'index.html';
         } catch (error) {
-            console.error('恢復失敗:', error);
             alert('無法連接到服務器，請稍後再試！');
             recoverButton.disabled = false;
             recoverButton.textContent = '嘗試恢復';

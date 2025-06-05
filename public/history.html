@@ -63,6 +63,11 @@
       padding: 8px;
       box-sizing: border-box;
     }
+    .form-group small {
+      display: block;
+      margin-top: 5px;
+      color: #666;
+    }
     .button {
       background-color: #4a3628;
       color: white;
@@ -94,6 +99,12 @@
     }
     .hidden {
       display: none;
+    }
+    .annual-range-pos {
+      color: #2ecc40; /* 綠色 */
+    }
+    .annual-range-neg {
+      color: #e63946; /* 紅色 */
     }
   </style>
 </head>
@@ -282,6 +293,15 @@
     document.getElementById('rangeInput').value = '';
   }
 
+  // 將數值格式化到小數點後兩位
+  function format2(val) {
+    return Number(val).toFixed(2);
+  }
+
+  function getRangeClass(val) {
+    return Number(val) >= 0 ? 'annual-range-pos' : 'annual-range-neg';
+  }
+
   async function queryPriceData() {
     const metalType = document.getElementById('metalType').value;
     const year = parseInt(document.getElementById('queryYearInput').value);
@@ -320,12 +340,13 @@
         table.classList.remove('hidden');
         const row = document.createElement('tr');
         row.innerHTML = `
-                        <td>${data.year}</td>
-                        <td>$${data.average_price}</td>
-                        <td>$${data.highest_price}</td>
-                        <td>$${data.lowest_price}</td>
-                        <td>${data.annual_range}%</td>
-                    `;
+            <td>${data.year}</td>
+            <td>$${format2(data.average_price)}</td>
+            <td>$${format2(data.highest_price)}</td>
+            <td>$${format2(data.lowest_price)}</td>
+            <td class="${getRangeClass(data.annual_range)}">${format2(data.annual_range)}%</td>
+        `;
+
         tbody.appendChild(row);
       }
     } catch (error) {
@@ -382,12 +403,12 @@
         data.forEach(item => {
           const row = document.createElement('tr');
           row.innerHTML = `
-                            <td>${item.year}</td>
-                            <td>$${item.average_price}</td>
-                            <td>$${item.highest_price}</td>
-                            <td>$${item.lowest_price}</td>
-                            <td>${item.annual_range}%</td>
-                        `;
+            <td>${item.year}</td>
+            <td>$${format2(item.average_price)}</td>
+            <td>$${format2(item.highest_price)}</td>
+            <td>$${format2(item.lowest_price)}</td>
+            <td class="${getRangeClass(item.annual_range)}">${format2(item.annual_range)}%</td>
+          `;
           tbody.appendChild(row);
         });
 
@@ -463,12 +484,12 @@
       data.forEach(item => {
         const row = document.createElement('tr');
         row.innerHTML = `
-                        <td>${item.year}</td>
-                        <td>$${item.average_price}</td>
-                        <td>$${item.highest_price}</td>
-                        <td>$${item.lowest_price}</td>
-                        <td>${item.annual_range}%</td>
-                    `;
+            <td>${item.year}</td>
+            <td>$${format2(item.average_price)}</td>
+            <td>$${format2(item.highest_price)}</td>
+            <td>$${format2(item.lowest_price)}</td>
+            <td class="${getRangeClass(item.annual_range)}">${format2(item.annual_range)}%</td>
+        `;
         tbody.appendChild(row);
       });
     } catch (error) {

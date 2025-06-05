@@ -52,6 +52,18 @@
       color: #333;
       margin-bottom: 10px;
     }
+    .title-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .gold-icon {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      margin: 0 8px;
+    }
     .unit{
       font-size: 14px;
       color: #666;
@@ -86,7 +98,11 @@
 </div>
 <div class="container">
   <div class="price-box">
-    <p class="title">現在國際黃金價格</p>
+    <div class="title-row">
+      <img src="/images/gold.webp" alt="gold" class="gold-icon">
+      <span class="title">現在國際黃金價格</span>
+      <img src="/images/gold.webp" alt="gold" class="gold-icon">
+    </div>
     <p class="unit">單位：美元/盎司</p>
     <p class="price" id="goldPriceInt">$3362.86</p>
     <p class="change" id="goldChangeInt">-18.63 -0.551%</p>
@@ -97,7 +113,7 @@
   let lastRefreshTime = 0;
   async function refreshGoldPrice(type, event) {
     const now = Date.now();
-    if (now - lastRefreshTime < 1000) {
+    if (now - lastRefreshTime < 500) {
       window.location.href = 'error-wait.html';
       return;
     }
